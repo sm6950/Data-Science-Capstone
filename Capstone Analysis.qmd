@@ -108,3 +108,97 @@ A study was conducted to determine how...
 -   Use visuals to support your claims.
 
 -   Tell a story about what the data reveals.
+
+
+
+---
+title: "Categorical Counts — Blue Tables Only"
+format:
+  html:
+    toc: false
+execute:
+  echo: false      # hide all code globally
+  warning: false
+  message: false
+---
+
+```{r}
+# Load libraries
+library(tidyverse)
+library(janitor)
+library(gt)
+library(scales)
+
+# === Load dataset ===
+data_path <- "synthetic_fraud_dataset.csv"
+df <- readr::read_csv(data_path, show_col_types = FALSE) |>
+  clean_names()
+
+# === Create count tables ===
+tbl_type <- df |>
+  count(transaction_type, name = "Count") |>
+  arrange(desc(Count)) |>
+  rename(Type = transaction_type)
+
+tbl_device <- df |>
+  count(device_type, name = "Count") |>
+  arrange(desc(Count)) |>
+  rename(Device = device_type)
+
+tbl_merchant <- df |>
+  count(merchant_category, name = "Count") |>
+  arrange(desc(Count)) |>
+  rename(Merchant_Category = merchant_category)
+
+# === Blue Theme for gt Tables ===
+style_blue_gt <- function(.data, title_text) {
+  .data |>
+    gt() |>
+    tab_header(title = md(title_text)) |>
+    fmt_number(columns = "Count", decimals = 0, sep_mark = ",") |>
+    tab_options(
+      table.font.names = "Arial",
+      table.font.size  = 14,
+      data_row.padding = px(6),
+      heading.align    = "left",
+      table.border.top.color    = "#1E3A8A",
+      table.border.top.width    = px(3),
+      table.border.bottom.color = "#1E3A8A",
+      table.border.bottom.width = px(3)
+    ) |>
+    tab_style(
+      style = list(cell_fill(color = "#1E3A8A"),
+                   cell_text(color = "white", weight = "bold")),
+      locations = cells_title(groups = "title")
+    ) |>
+    tab_style(
+      style = list(cell_fill(color = "#3B82F6"),
+                   cell_text(color = "white", weight = "bold")),
+      locations = cells_column_labels(everything())
+    ) |>
+    opt_row_striping() |>
+    cols_align("right", columns = "Count")
+}
+
+# === Render all three blue tables ===
+style_blue_gt(tbl_type, "Table 1 – Transaction Types and Counts")
+style_blue_gt(tbl_device, "Table 2 – Device Types and Counts")
+style_blue_gt(tbl_merchant, "Table 3 – Merchant Categories and Counts")
+
+
+
+
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
